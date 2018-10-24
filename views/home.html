@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<form class="form-signin text-center" id="form-signin">
+	<img class="mb-4" src="images/favicon.png" alt="" width="72" height="72">
+	<h1 class="h3 mb-3 font-weight-normal">Vennligst logg inn</h1>
+	<label for="inputEmail" class="sr-only">E-post adresse</label>
+	<input type="email" id="inputEmail" class="form-control" placeholder="E-post adresse" required autofocus>
+	<label for="inputPassword" class="sr-only">Passord</label>
+	<input type="password" id="inputPassword" class="form-control" placeholder="Passord" required>
+	<button class="btn btn-lg btn-primary btn-block" type="submit">Logg på</button>
+</form>
+{% endblock %}

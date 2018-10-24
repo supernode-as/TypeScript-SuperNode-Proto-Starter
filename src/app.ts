@@ -13,6 +13,7 @@ import passport from "passport";
 import expressValidator from "express-validator";
 import bluebird from "bluebird";
 import { MONGODB_URI, SESSION_SECRET } from "./util/secrets";
+import * as nunjucks from "nunjucks";
 
 const MongoStore = mongo(session);
 
@@ -42,10 +43,15 @@ mongoose.connect(mongoUrl, {useMongoClient: true}).then(
   // process.exit();
 });
 
+nunjucks.configure("views", {
+  autoescape: true,
+  express: app
+});
+
 // Express configuration
 app.set("port", process.env.PORT || 35627);
 app.set("views", path.join(__dirname, "../views"));
-app.set("view engine", "pug");
+app.set("view engine", "nunjucks");
 app.use(compression());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
