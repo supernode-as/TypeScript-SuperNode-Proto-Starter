@@ -1,43 +1,76 @@
-'use strict';
+const gulp = require("gulp");
+const nodemon = require("gulp-nodemon");
+const browserSync = require("browser-sync");
+const sass = require("gulp-sass");
 
-var gulp = require('gulp');
-var browserSync = require('browser-sync');
-var nodemon = require('gulp-nodemon');
+browserSync.create();
 
+const nodemonOptions = {
+	script: "dist/server.js",
+	env: { "NODE_ENV": "development" },
+	verbose: true,
+	ignore: [
+		"./node_modules/*",
+		"./dist/public/*",
+		"./data/temp/*",
+		"./src/*"
+	],
+	watch: [
+		"/lib/**/*.*",
+		"/data/local.js",
+		"/views/**/*.*"
+	],
+	ext: "html,js,ts"
+};
 
-gulp.task('default', ['browser-sync'], function () {
-});
+function runNodeMon(done) {
+	nodemon(nodemonOptions)
+		.on("start", function () {
+			console.log("\nNode (Apostrophe CMS) started on port 35627\n");
+		})
+		.on("restart", function () {
+			console.log("Restarted!");
+			browserSync.notify("Nodemon is restarting the application, reloading browser in 10 seconds...", 10000);
+			setTimeout(() => {
+				browserSync.reload();
+			}, 10000);
+		});
+	done();
+}
 
-gulp.task('browser-sync', ['nodemon'], function() {
-	browserSync.init(null, {
-		proxy: "http://localhost:35627",
-        files: ["public/**/*.*"],
-        browser: "google chrome",
-        port: 7000,
-    });
-    gulp.watch("src/public/css/*.scss", ['sass']);
-    gulp.watch("views/*").on('change', browserSync.reload);
-});
-gulp.task('nodemon', function (cb) {
-	
-	var started = false;
-	
-	return nodemon({
-        ext: "ts",
-        exec: "npm run watch"
-	}).on('start', function () {
-		// to avoid nodemon being started multiple times
-		// thanks @matthisk
-		if (!started) {
-			cb();
-			started = true; 
-		} 
+// Static Server + watching scss/html files
+function runBrowserSync(done) {
+	browserSync.init({
+		proxy: "http://127.0.0.1:35627",
+		port: 3001,
+		reloadOnRestart: true,
+		open: false
 	});
-});
 
-gulp.task('sass', function() {
-    return gulp.src("app/scss/*.scss")
-        .pipe(sass())
-        .pipe(gulp.dest("app/css"))
-        .pipe(browserSync.stream());
-});
+	gulp.watch("src/public/css/**/*.scss", gulp.series(compileSass, watchSass));
+	done();
+}
+
+// Compile sass into CSS & auto-inject into browsers
+function compileSass(done) {
+	return gulp.src("src/public/css/main.scss")
+		.pipe(sass({outputStyle: 'compressed'}))
+		.pipe(sass())
+		.pipe(gulp.dest("dist/public/css/"));
+}
+
+function watchSass(done) {
+	gulp.src("public/css/styles.css")
+		.pipe(browserSync.stream());
+	done();
+}
+
+function build(done) {
+	run('npm run build')
+	done();
+}
+
+gulp.task("build", gulp.series(build));
+gulp.task("serve", gulp.series(compileSass, runNodeMon, runBrowserSync));
+gulp.task("styles", gulp.series(compileSass));
+gulp.task("default", gulp.parallel("serve"));
