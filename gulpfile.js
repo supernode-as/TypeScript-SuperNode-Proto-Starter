@@ -26,7 +26,7 @@ const nodemonOptions = {
 function runNodeMon(done) {
 	nodemon(nodemonOptions)
 		.on("start", function () {
-			console.log("\nNode (Apostrophe CMS) started on port 35627\n");
+			console.log("\nNode (supernode starter) started on port 35627\n");
 		})
 		.on("restart", function () {
 			console.log("Restarted!");
