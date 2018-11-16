@@ -1,0 +1,4 @@
+uploads/*
+public/*
+.vscode/*
+node_modules/*

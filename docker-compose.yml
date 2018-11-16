@@ -1,0 +1,46 @@
+version: '2'
+
+services:
+  supernode-starter-db:
+    container_name: supernode-starter-db
+    image: mongo
+    networks:
+      - internal
+      - supernode-starter-app-net
+    ports:
+      - 27017:27017
+    environment:
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ~/Docker/mnt/mongodb:/data/db
+
+  supernode-starter:
+    container_name: supernode-starter
+    image: supernodeno/supernode-starter
+    networks:
+      - internal
+      - supernode-starter-app-net
+    ports:
+      - 35627:35627
+      - 3001:3001
+      - 3002:3002
+    depends_on:
+      - supernode-starter-db
+    command: ["./wait-for-it.sh", "supernode-starter-db:27017", "--", "npm", "start"]
+    environment:
+      - MONGODB_ADDR=supernode-starter-db
+      - MONGODB_PORT=27017
+      - NODE_ENV=docker
+    tty: true
+    volumes:
+      - ./dist/server.js:/app/dist/server.js
+      - ./views:/app/views/
+      - ./public:/app/public
+      - ./src:/app/src
+      - ./test:/app/test
+      - ./docker.env:/app/.env
+networks:
+  internal:
+    external: false
+  supernode-starter-app-net:

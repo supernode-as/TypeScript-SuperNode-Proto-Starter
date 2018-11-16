@@ -53,14 +53,14 @@ function runBrowserSync(done) {
 
 // Compile sass into CSS & auto-inject into browsers
 function compileSass(done) {
-	return gulp.src("src/public/css/main.scss")
+	return gulp.src("dist/public/css/main.scss")
 		.pipe(sass({outputStyle: 'compressed'}))
 		.pipe(sass())
 		.pipe(gulp.dest("dist/public/css/"));
 }
 
 function watchSass(done) {
-	gulp.src("public/css/styles.css")
+	gulp.src("dist/public/css/main.scss")
 		.pipe(browserSync.stream());
 	done();
 }
